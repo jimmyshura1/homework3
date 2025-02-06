@@ -1,5 +1,5 @@
 <script setup>
-  import {ref} from 'vue'
+  import {ref, onMounted, watch} from 'vue'
 
   const myArray = ref([])
   const name = ref('')
@@ -20,6 +20,23 @@ const addToDo = () => {
   input_content.value = ''
   input_category.value = null
 }
+
+const removeToDo = (x) =>{
+  myArray.value = myArray.value.filter(Element => Element !== x)
+}
+
+onMounted( () =>{
+  name.value = localStorage.getItem('name') || ''
+  myArray.value = JSON.parse(localStorage.getItem('myArray')) || []
+})
+
+watch(name, (newVal) => {
+  localStorage.setItem('name', newVal)
+})
+
+watch(myArray, (newVal) => {
+  localStorage.setItem('myArray', JSON.stringify(newVal))
+}, {deep: true})
 
 </script>
 
@@ -59,15 +76,21 @@ const addToDo = () => {
    <section class="todo-list">
      <div class="list">
        <div v-for="x in myArray" :class="`todo-item ${x.done ? 'done' : 'not-done'}`" :key="x">
-         <label>
+         
+        <label>
           <input type="checkbox" v-model="x.done"/>
           <span :class="`bubble ${x.category}`"></span>
-         </label>
-         <div class="todo-content">
-           <input type="text" v-model="x.content"/>
-         </div>
+        </label>
 
-       </div>
+        <div class="todo-content">
+          <input type="text" v-model="x.content"/>
+        </div>
+
+        <div class="actions">
+          <button class="delete" @click="removeToDo(x)">Delete</button>
+        </div>
+      
+      </div>
      </div>
 
 
